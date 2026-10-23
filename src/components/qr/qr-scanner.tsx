@@ -134,7 +134,7 @@ export function QRScanner() {
   return (
     <div className="max-w-md mx-auto w-full">
       {/* Tab Switcher: Camera vs Manual Code */}
-      <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl mb-4 border border-slate-200 dark:border-slate-700">
+      <div className="flex bg-[#EAEAEA] dark:bg-[#252525] p-1 rounded-2xl mb-4 border border-[#E0E0E0] dark:border-[#383838]">
         <button
           onClick={() => {
             setActiveTab("camera");
@@ -142,8 +142,8 @@ export function QRScanner() {
           }}
           className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-semibold rounded-xl transition-all ${
             activeTab === "camera"
-              ? "bg-white dark:bg-slate-900 text-maroon-700 dark:text-maroon-400 shadow-sm"
-              : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
+              ? "bg-[#FAFAFA] dark:bg-[#202020] text-[#762D3D] dark:text-[#E6B5C2] shadow-sm font-bold"
+              : "text-[#626262] dark:text-[#A6A6A6] hover:text-[#252525] dark:hover:text-[#F5F5F5]"
           }`}
         >
           <Camera className="w-3.5 h-3.5" />
@@ -157,8 +157,8 @@ export function QRScanner() {
           }}
           className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-semibold rounded-xl transition-all ${
             activeTab === "manual"
-              ? "bg-white dark:bg-slate-900 text-maroon-700 dark:text-maroon-400 shadow-sm"
-              : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
+              ? "bg-[#FAFAFA] dark:bg-[#202020] text-[#762D3D] dark:text-[#E6B5C2] shadow-sm font-bold"
+              : "text-[#626262] dark:text-[#A6A6A6] hover:text-[#252525] dark:hover:text-[#F5F5F5]"
           }`}
         >
           <Keyboard className="w-3.5 h-3.5" />
@@ -167,7 +167,7 @@ export function QRScanner() {
       </div>
 
       {/* Main View Area */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden p-6 relative">
+      <div className="bg-[#FAFAFA] dark:bg-[#202020] rounded-3xl border border-[#E0E0E0] dark:border-[#383838] shadow-xl overflow-hidden p-6 relative">
         <AnimatePresence mode="wait">
           {/* Result Card */}
           {scanResult ? (
@@ -221,13 +221,13 @@ export function QRScanner() {
                   <div className="pt-2 flex flex-col sm:flex-row gap-2">
                     <button
                       onClick={handleReset}
-                      className="flex-1 py-2.5 px-4 text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center justify-center gap-1.5"
+                      className="flex-1 py-2.5 px-4 text-xs font-semibold rounded-xl border border-[#E0E0E0] dark:border-[#454545] text-[#252525] dark:text-[#F5F5F5] hover:bg-[#EAEAEA] dark:hover:bg-[#252525] transition-colors flex items-center justify-center gap-1.5"
                     >
                       <RotateCcw className="w-3.5 h-3.5" /> Scan Another Class
                     </button>
                     <Link
                       href="/student"
-                      className="flex-1 py-2.5 px-4 text-xs font-semibold rounded-xl bg-maroon-700 hover:bg-maroon-800 text-white transition-colors flex items-center justify-center gap-1.5"
+                      className="flex-1 py-2.5 px-4 text-xs font-semibold rounded-xl bg-[#762D3D] hover:bg-[#8A394B] text-[#F5F5F5] transition-colors flex items-center justify-center gap-1.5 shadow-sm"
                     >
                       <span>Dashboard</span>
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -236,15 +236,15 @@ export function QRScanner() {
                 </>
               ) : (
                 <>
-                  <div className="w-16 h-16 mx-auto rounded-full bg-rose-100 text-rose-600 dark:bg-rose-950/60 dark:text-rose-400 flex items-center justify-center shadow-lg shadow-rose-500/20">
+                  <div className="w-16 h-16 mx-auto rounded-full bg-[#FDF0F0] text-[#C05656] dark:bg-[#4A2020]/60 dark:text-[#F19393] flex items-center justify-center shadow-lg shadow-rose-500/10">
                     <XCircle className="w-10 h-10" />
                   </div>
 
                   <div>
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                    <h3 className="text-lg font-bold text-[#252525] dark:text-[#F5F5F5]">
                       Submission Not Recorded
                     </h3>
-                    <p className="text-xs text-rose-600 dark:text-rose-400 mt-2 px-2 leading-relaxed font-medium">
+                    <p className="text-xs text-[#C05656] dark:text-[#F19393] mt-2 px-2 leading-relaxed font-medium">
                       {scanResult.error}
                     </p>
                   </div>
@@ -252,7 +252,7 @@ export function QRScanner() {
                   <div className="pt-3">
                     <button
                       onClick={handleReset}
-                      className="w-full py-2.5 px-4 text-xs font-semibold rounded-xl bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 hover:opacity-90 transition-opacity flex items-center justify-center gap-1.5"
+                      className="w-full py-2.5 px-4 text-xs font-semibold rounded-xl bg-[#252525] dark:bg-[#F5F5F5] text-white dark:text-[#252525] hover:opacity-90 transition-opacity flex items-center justify-center gap-1.5"
                     >
                       <RotateCcw className="w-3.5 h-3.5" /> Try Again
                     </button>
@@ -271,19 +271,19 @@ export function QRScanner() {
             >
               {cameraError ? (
                 <div className="py-8 text-center space-y-3">
-                  <AlertTriangle className="w-10 h-10 text-amber-500 mx-auto" />
-                  <p className="text-xs text-slate-600 dark:text-slate-400 px-4">
+                  <AlertTriangle className="w-10 h-10 text-[#B7791F] mx-auto" />
+                  <p className="text-xs text-[#626262] dark:text-[#A6A6A6] px-4">
                     {cameraError}
                   </p>
                   <button
                     onClick={() => setActiveTab("manual")}
-                    className="px-4 py-2 bg-maroon-700 text-white rounded-xl text-xs font-semibold hover:bg-maroon-800 transition-colors"
+                    className="px-4 py-2 bg-[#762D3D] text-[#F5F5F5] rounded-xl text-xs font-semibold hover:bg-[#8A394B] transition-colors"
                   >
                     Switch to Manual Code Entry
                   </button>
                 </div>
               ) : (
-                <div className="relative rounded-2xl overflow-hidden bg-black aspect-square flex items-center justify-center border border-slate-800">
+                <div className="relative rounded-2xl overflow-hidden bg-black aspect-square flex items-center justify-center border border-[#383838]">
                   <video
                     ref={videoRef}
                     playsInline
@@ -293,7 +293,7 @@ export function QRScanner() {
 
                   {/* Viewfinder Overlay */}
                   <div className="absolute inset-0 border-2 border-white/20 pointer-events-none flex items-center justify-center">
-                    <div className="w-56 h-56 border-2 border-dashed border-maroon-500 rounded-2xl relative">
+                    <div className="w-56 h-56 border-2 border-dashed border-[#762D3D] rounded-2xl relative">
                       <div className="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-white" />
                       <div className="absolute -top-1 -right-1 w-4 h-4 border-t-2 border-r-2 border-white" />
                       <div className="absolute -bottom-1 -left-1 w-4 h-4 border-b-2 border-l-2 border-white" />
@@ -301,22 +301,22 @@ export function QRScanner() {
 
                       {/* Moving laser scan line */}
                       <motion.div
-                        className="w-full h-0.5 bg-maroon-500 shadow-md shadow-maroon-500"
+                        className="w-full h-0.5 bg-[#2F855A] shadow-md shadow-[#2F855A]"
                         animate={{ y: [0, 220, 0] }}
                         transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
                       />
                     </div>
                   </div>
 
-                  <div className="absolute bottom-3 px-3 py-1 bg-black/60 backdrop-blur-sm rounded-full text-[11px] font-medium text-white/90">
+                  <div className="absolute bottom-3 px-3 py-1 bg-black/70 backdrop-blur-sm rounded-full text-[11px] font-medium text-white/90">
                     Align QR code within the frame
                   </div>
                 </div>
               )}
 
               {/* Instructions */}
-              <div className="flex items-start gap-2 p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl text-slate-600 dark:text-slate-400 text-xs">
-                <Info className="w-4 h-4 shrink-0 text-maroon-700 dark:text-maroon-400 mt-0.5" />
+              <div className="flex items-start gap-2 p-3 bg-[#F0F0F0] dark:bg-[#252525] rounded-xl text-[#626262] dark:text-[#A6A6A6] text-xs border border-[#E0E0E0] dark:border-[#383838]">
+                <Info className="w-4 h-4 shrink-0 text-[#762D3D] dark:text-[#E6B5C2] mt-0.5" />
                 <span>
                   Point camera at the live attendance QR displayed by your instructor. Server verifies enrollment and timestamp automatically.
                 </span>
@@ -332,17 +332,17 @@ export function QRScanner() {
               className="space-y-4"
             >
               <div className="text-center pb-2">
-                <h4 className="text-sm font-semibold text-slate-900 dark:text-white">
+                <h4 className="text-sm font-semibold text-[#252525] dark:text-[#F5F5F5]">
                   Manual Attendance Token Submission
                 </h4>
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-xs text-[#626262] dark:text-[#A6A6A6] mt-1">
                   Enter the live session token or payload provided on the classroom display.
                 </p>
               </div>
 
               <form onSubmit={handleManualSubmit} className="space-y-3">
                 <div>
-                  <label className="block text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 mb-1.5">
+                  <label className="block text-xs font-semibold uppercase text-[#626262] dark:text-[#A6A6A6] mb-1.5">
                     Session Token / Payload
                   </label>
                   <textarea
@@ -351,20 +351,20 @@ export function QRScanner() {
                     placeholder='Paste payload (e.g. {"prefix":"TCCI_ATTEND",...}) or "sessionId:token"'
                     rows={4}
                     required
-                    className="w-full px-3 py-2.5 text-xs font-mono rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-maroon-700"
+                    className="w-full px-3 py-2.5 text-xs font-mono rounded-xl border border-[#E0E0E0] dark:border-[#454545] bg-[#FFFFFF] dark:bg-[#252525] text-[#252525] dark:text-[#F5F5F5] placeholder:text-[#858585] focus:outline-none focus:ring-2 focus:ring-[#762D3D] focus:border-[#762D3D]"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={isSubmitting || !manualCode.trim()}
-                  className="w-full py-2.5 px-4 rounded-xl bg-maroon-700 hover:bg-maroon-800 text-white font-semibold text-xs disabled:opacity-50 transition-colors shadow-sm"
+                  className="w-full py-2.5 px-4 rounded-xl bg-[#762D3D] hover:bg-[#8A394B] active:bg-[#622333] text-[#F5F5F5] font-semibold text-xs disabled:opacity-50 transition-colors shadow-sm"
                 >
                   {isSubmitting ? "Verifying Attendance..." : "Submit Attendance Record"}
                 </button>
               </form>
 
-              <div className="p-3 bg-amber-50 dark:bg-amber-950/30 rounded-xl border border-amber-200 dark:border-amber-900/40 text-[11px] text-amber-800 dark:text-amber-300">
+              <div className="p-3 bg-[#FEF7E6] dark:bg-[#483212]/40 rounded-xl border border-[#B7791F]/30 text-[11px] text-[#B7791F] dark:text-[#E7B567]">
                 Notice: All check-ins are logged with server timestamps. Submissions past the cutoff will be marked as Late or Absent.
               </div>
             </motion.div>

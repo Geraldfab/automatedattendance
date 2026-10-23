@@ -43,45 +43,46 @@ export function AttendanceChart({ data }: AttendanceChartProps) {
         >
           <defs>
             <linearGradient id="colorPresent" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
-              <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+              <stop offset="5%" stopColor="#2F855A" stopOpacity={0.4} />
+              <stop offset="95%" stopColor="#2F855A" stopOpacity={0} />
             </linearGradient>
             <linearGradient id="colorLate" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.4} />
-              <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
+              <stop offset="5%" stopColor="#B7791F" stopOpacity={0.4} />
+              <stop offset="95%" stopColor="#B7791F" stopOpacity={0} />
             </linearGradient>
             <linearGradient id="colorAbsent" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#ef4444" stopOpacity={0.4} />
-              <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
+              <stop offset="5%" stopColor="#C05656" stopOpacity={0.4} />
+              <stop offset="95%" stopColor="#C05656" stopOpacity={0} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
+          <CartesianGrid strokeDasharray="3 3" opacity={0.12} stroke="#454545" />
           <XAxis
             dataKey="date"
             tick={{ fontSize: 11 }}
-            stroke="#94a3b8"
+            stroke="#858585"
             tickLine={false}
           />
           <YAxis
             tick={{ fontSize: 11 }}
-            stroke="#94a3b8"
+            stroke="#858585"
             tickLine={false}
             allowDecimals={false}
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: "#0f172a",
-              color: "#fff",
+              backgroundColor: "#202020",
+              color: "#F5F5F5",
               borderRadius: "0.75rem",
-              border: "none",
+              border: "1px solid #454545",
               fontSize: "12px",
+              boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.4)",
             }}
           />
           <Area
             type="monotone"
             dataKey="present"
             name="Present"
-            stroke="#10b981"
+            stroke="#2F855A"
             strokeWidth={2}
             fillOpacity={1}
             fill="url(#colorPresent)"
@@ -90,7 +91,7 @@ export function AttendanceChart({ data }: AttendanceChartProps) {
             type="monotone"
             dataKey="late"
             name="Late"
-            stroke="#f59e0b"
+            stroke="#B7791F"
             strokeWidth={2}
             fillOpacity={1}
             fill="url(#colorLate)"
@@ -99,7 +100,7 @@ export function AttendanceChart({ data }: AttendanceChartProps) {
             type="monotone"
             dataKey="absent"
             name="Absent"
-            stroke="#ef4444"
+            stroke="#C05656"
             strokeWidth={2}
             fillOpacity={1}
             fill="url(#colorAbsent)"
@@ -135,32 +136,33 @@ export function SubjectComparisonChart({ data }: SubjectComparisonChartProps) {
           data={data}
           margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
         >
-          <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
+          <CartesianGrid strokeDasharray="3 3" opacity={0.12} stroke="#454545" />
           <XAxis
             dataKey="subjectCode"
             tick={{ fontSize: 11 }}
-            stroke="#94a3b8"
+            stroke="#858585"
             tickLine={false}
           />
           <YAxis
             domain={[0, 100]}
             tick={{ fontSize: 11 }}
-            stroke="#94a3b8"
+            stroke="#858585"
             tickLine={false}
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: "#0f172a",
-              color: "#fff",
+              backgroundColor: "#202020",
+              color: "#F5F5F5",
               borderRadius: "0.75rem",
-              border: "none",
+              border: "1px solid #454545",
               fontSize: "12px",
+              boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.4)",
             }}
             formatter={(val: any) => [`${val}%`, "Attendance Rate"]}
           />
           <Bar
             dataKey="attendanceRate"
-            fill="#8b1e3f"
+            fill="#762D3D"
             radius={[6, 6, 0, 0]}
           />
         </BarChart>

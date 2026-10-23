@@ -22,18 +22,88 @@ const config: Config = {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        
+        // Torres Capitol College Inc. Official Color System
+        charcoal: {
+          DEFAULT: "#171717",
+          primary: "#171717",
+          secondary: "#202020",
+          surface: "#252525",
+          border: "#454545",
+          subtle: "#303030",
+          text: "#F5F5F5",
+          textMuted: "#A6A6A6",
+          lightBg: "#F0F0F0",
+          lightCard: "#FAFAFA",
+          lightText: "#252525",
+          lightMuted: "#626262",
+          lightBorder: "#E0E0E0",
+        },
+        burgundy: {
+          DEFAULT: "#762D3D",
+          hover: "#8A394B",
+          pressed: "#622333",
+          surface: "#352329",
+          subtle: "#422830",
+          border: "#5a2531",
+          light: "#F8EAEF",
+        },
+        status: {
+          present: "#2F855A",
+          presentLight: "#EBF5EE",
+          presentDark: "#1C3E2B",
+          late: "#B7791F",
+          lateLight: "#FEF7E6",
+          lateDark: "#483212",
+          absent: "#C05656",
+          absentLight: "#FDF0F0",
+          absentDark: "#4A2020",
+          excused: "#4A78A8",
+          excusedLight: "#EBF3FB",
+          excusedDark: "#1E334A",
+          neutral: "#858585",
+        },
+        // Map slate to the official charcoal, graphite, silver, and soft gray tokens
+        slate: {
+          50: "#F0F0F0",  // Light-mode page background
+          100: "#EAEAEA",
+          200: "#E0E0E0", // Light-mode border
+          300: "#D4D4D4",
+          400: "#A6A6A6", // Secondary text on dark surfaces
+          500: "#626262", // Secondary text on light surfaces
+          600: "#626262",
+          700: "#454545", // Border and divider
+          800: "#252525", // Elevated surface
+          900: "#202020", // Secondary background / card
+          950: "#171717", // Primary dark background
+        },
+        // Legacy maroon alias mapped strictly to the new Official Burgundy Accent
         maroon: {
-          50: "#fdf2f4",
-          100: "#fbe8ec",
-          200: "#f7d2d9",
-          300: "#f0abb8",
-          400: "#e5778e",
-          500: "#d54868",
-          600: "#be294d",
-          700: "#8b1e3f", // College Primary Maroon
-          800: "#751c37",
-          900: "#5b1429",
-          950: "#360815",
+          50: "#F8EAEF",
+          100: "#F3D8E0",
+          200: "#E6B5C2",
+          300: "#D3889B",
+          400: "#B8576E",
+          500: "#8A394B",
+          600: "#8A394B",
+          700: "#762D3D", // Primary Burgundy
+          800: "#622333", // Pressed Burgundy
+          900: "#352329", // Subtle Burgundy Surface
+          950: "#221419",
+        },
+        tcc: {
+          bg: "#171717",
+          secondary: "#202020",
+          surface: "#252525",
+          border: "#454545",
+          subtle: "#303030",
+          burgundy: "#762D3D",
+          burgundyHover: "#8A394B",
+          burgundyPressed: "#622333",
+          burgundySurface: "#352329",
+          silver: "#A6A6A6",
+          lightBg: "#F0F0F0",
+          lightCard: "#FAFAFA",
         },
         primary: {
           DEFAULT: "hsl(var(--primary))",

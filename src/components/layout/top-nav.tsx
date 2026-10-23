@@ -8,10 +8,10 @@ import {
   Sun,
   Moon,
   LogOut,
-  User,
   Check,
-  ExternalLink,
+  Menu,
 } from "lucide-react";
+import { useShell } from "./dashboard-shell";
 
 interface TopNavProps {
   user: {
@@ -26,6 +26,7 @@ interface TopNavProps {
 export function TopNav({ user }: TopNavProps) {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
+  const { toggleMobile } = useShell();
   const [mounted, setMounted] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -73,31 +74,39 @@ export function TopNav({ user }: TopNavProps) {
   };
 
   return (
-    <header className="h-16 border-b border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-20 px-6 flex items-center justify-between">
-      {/* Left side: System status badge & greeting */}
+    <header className="h-16 border-b border-[#E0E0E0] dark:border-[#383838] bg-[#FAFAFA]/95 dark:bg-[#202020]/95 backdrop-blur-md sticky top-0 z-20 px-4 sm:px-6 flex items-center justify-between transition-colors duration-150">
+      {/* Left side: Mobile Hamburger & Academic badge */}
       <div className="flex items-center gap-3">
-        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-maroon-50 text-maroon-700 border border-maroon-200 dark:bg-maroon-950/40 dark:text-maroon-300 dark:border-maroon-800">
-          Academic Year 2024–2025
+        <button
+          onClick={toggleMobile}
+          className="p-2 rounded-xl text-[#626262] dark:text-[#A6A6A6] hover:bg-[#EAEAEA] dark:hover:bg-[#252525] lg:hidden transition-colors"
+          aria-label="Open mobile menu"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#F0F0F0] text-[#252525] border border-[#E0E0E0] dark:bg-[#252525] dark:text-[#F5F5F5] dark:border-[#454545]">
+          A.Y. 2024–2025
         </span>
-        <span className="hidden sm:inline-block text-xs text-slate-400">|</span>
-        <span className="hidden sm:inline-block text-xs font-medium text-slate-600 dark:text-slate-400">
+        <span className="hidden sm:inline-block text-xs text-[#858585]">|</span>
+        <span className="hidden sm:inline-block text-xs font-medium text-[#626262] dark:text-[#A6A6A6]">
           Philippine Standard Time (UTC+8)
         </span>
       </div>
 
-      {/* Right side: Actions */}
-      <div className="flex items-center gap-3">
+      {/* Right side: Actions & User */}
+      <div className="flex items-center gap-2 sm:gap-3">
         {/* Dark/Light mode toggle */}
         {mounted && (
           <button
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             aria-label="Toggle theme"
-            className="p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-2 rounded-xl text-[#626262] dark:text-[#A6A6A6] hover:bg-[#EAEAEA] dark:hover:bg-[#252525] transition-colors"
           >
             {theme === "dark" ? (
-              <Sun className="w-4 h-4 text-amber-400" />
+              <Sun className="w-4 h-4 text-[#F5F5F5]" />
             ) : (
-              <Moon className="w-4 h-4 text-slate-600" />
+              <Moon className="w-4 h-4 text-[#252525]" />
             )}
           </button>
         )}
@@ -106,33 +115,33 @@ export function TopNav({ user }: TopNavProps) {
         <div className="relative">
           <button
             onClick={() => setShowNotifications(!showNotifications)}
-            className="p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors relative"
+            className="p-2 rounded-xl text-[#626262] dark:text-[#A6A6A6] hover:bg-[#EAEAEA] dark:hover:bg-[#252525] transition-colors relative"
             aria-label="Notifications"
           >
             <Bell className="w-4 h-4" />
             {unreadCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#762D3D] ring-2 ring-[#FAFAFA] dark:ring-[#202020]" />
             )}
           </button>
 
           {showNotifications && (
-            <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden z-50">
-              <div className="p-3.5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+            <div className="absolute right-0 mt-2 w-80 bg-[#FAFAFA] dark:bg-[#202020] rounded-2xl border border-[#E0E0E0] dark:border-[#454545] shadow-xl overflow-hidden z-50 animate-in fade-in-50 zoom-in-95 duration-150">
+              <div className="p-3.5 border-b border-[#E0E0E0] dark:border-[#383838] flex items-center justify-between">
+                <span className="text-xs font-bold text-[#252525] dark:text-[#F5F5F5] uppercase tracking-wider">
                   Notifications
                 </span>
                 {unreadCount > 0 && (
                   <button
                     onClick={handleMarkAllRead}
-                    className="text-[11px] font-medium text-maroon-700 hover:underline dark:text-maroon-400 flex items-center gap-1"
+                    className="text-[11px] font-semibold text-[#762D3D] dark:text-[#E6B5C2] hover:underline flex items-center gap-1"
                   >
                     <Check className="w-3 h-3" /> Mark all read
                   </button>
                 )}
               </div>
-              <div className="max-h-72 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/60">
+              <div className="max-h-72 overflow-y-auto divide-y divide-[#EAEAEA] dark:divide-[#333333]">
                 {notifications.length === 0 ? (
-                  <div className="p-6 text-center text-xs text-slate-400">
+                  <div className="p-6 text-center text-xs text-[#626262] dark:text-[#A6A6A6]">
                     No new notifications
                   </div>
                 ) : (
@@ -141,17 +150,17 @@ export function TopNav({ user }: TopNavProps) {
                       key={n.id}
                       className={`p-3 text-xs transition-colors ${
                         !n.isRead
-                          ? "bg-maroon-50/40 dark:bg-maroon-950/20 font-medium"
-                          : "text-slate-600 dark:text-slate-400"
+                          ? "bg-[#F8EAEF]/60 dark:bg-[#352329]/50 font-medium"
+                          : "text-[#626262] dark:text-[#A6A6A6]"
                       }`}
                     >
-                      <p className="font-semibold text-slate-900 dark:text-white">
+                      <p className="font-semibold text-[#252525] dark:text-[#F5F5F5]">
                         {n.title}
                       </p>
-                      <p className="mt-0.5 text-[11px] leading-relaxed text-slate-500 dark:text-slate-400">
+                      <p className="mt-0.5 text-[11px] leading-relaxed text-[#626262] dark:text-[#A6A6A6]">
                         {n.message}
                       </p>
-                      <span className="text-[10px] text-slate-400 mt-1 block">
+                      <span className="text-[10px] text-[#858585] mt-1 block">
                         {new Date(n.createdAt).toLocaleTimeString([], {
                           hour: "2-digit",
                           minute: "2-digit",
@@ -169,37 +178,37 @@ export function TopNav({ user }: TopNavProps) {
         <div className="relative">
           <button
             onClick={() => setShowProfileMenu(!showProfileMenu)}
-            className="flex items-center gap-2.5 p-1.5 pl-2.5 rounded-xl border border-slate-200/80 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+            className="flex items-center gap-2.5 p-1.5 pl-2.5 rounded-xl border border-[#E0E0E0] dark:border-[#383838] hover:bg-[#EAEAEA] dark:hover:bg-[#252525] transition-colors"
           >
             <div className="text-left hidden sm:block">
-              <p className="text-xs font-semibold text-slate-900 dark:text-white truncate max-w-[130px]">
+              <p className="text-xs font-semibold text-[#252525] dark:text-[#F5F5F5] truncate max-w-[130px]">
                 {user.name}
               </p>
-              <p className="text-[10px] font-medium text-maroon-700 dark:text-maroon-400">
+              <p className="text-[10px] font-semibold text-[#762D3D] dark:text-[#E6B5C2] uppercase tracking-wider">
                 {user.role}
               </p>
             </div>
-            <div className="w-7 h-7 rounded-lg bg-maroon-100 text-maroon-800 dark:bg-maroon-900 dark:text-maroon-200 flex items-center justify-center font-bold text-xs">
+            <div className="w-7 h-7 rounded-lg bg-[#762D3D] text-[#F5F5F5] flex items-center justify-center font-bold text-xs shadow-sm">
               {user.name[0]}
             </div>
           </button>
 
           {showProfileMenu && (
-            <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden z-50 p-1.5">
-              <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-800">
-                <p className="text-xs font-semibold text-slate-900 dark:text-white truncate">
+            <div className="absolute right-0 mt-2 w-56 bg-[#FAFAFA] dark:bg-[#202020] rounded-2xl border border-[#E0E0E0] dark:border-[#454545] shadow-xl overflow-hidden z-50 p-1.5 animate-in fade-in-50 zoom-in-95 duration-150">
+              <div className="px-3 py-2 border-b border-[#E0E0E0] dark:border-[#383838]">
+                <p className="text-xs font-semibold text-[#252525] dark:text-[#F5F5F5] truncate">
                   {user.name}
                 </p>
-                <p className="text-[11px] text-slate-400 truncate">{user.email}</p>
+                <p className="text-[11px] text-[#626262] dark:text-[#A6A6A6] truncate">{user.email}</p>
                 {(user.studentIdNumber || user.facultyIdNumber) && (
-                  <p className="text-[10px] font-mono text-slate-500 mt-1">
+                  <p className="text-[10px] font-mono text-[#858585] mt-1">
                     ID: {user.studentIdNumber || user.facultyIdNumber}
                   </p>
                 )}
               </div>
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition-colors mt-1"
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-[#C05656] hover:bg-[#FDF0F0] dark:hover:bg-[#4A2020]/40 rounded-xl transition-colors mt-1"
               >
                 <LogOut className="w-4 h-4" />
                 <span>Sign Out</span>

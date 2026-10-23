@@ -6,8 +6,13 @@ import { ThemeProvider } from "@/components/providers/theme-provider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "TCCI BSIT Automated Attendance System",
+  title: "Torres Capitol College Inc. — BSIT Automated Attendance System",
   description: "Official Automated Attendance System for Bachelor of Science in Information Technology — Torres Capitol College Inc.",
+  icons: {
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
+  },
 };
 
 export default function RootLayout({

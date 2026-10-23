@@ -112,7 +112,7 @@ export function QRDisplay({
       </p>
 
       {/* QR Code Frame with animated border */}
-      <div className="relative p-3 rounded-2xl border-2 border-dashed border-maroon-300 dark:border-maroon-800/80 bg-slate-50 dark:bg-slate-950/60 shadow-inner">
+      <div className="relative p-3.5 rounded-2xl border-2 border-dashed border-[#5a2531] dark:border-[#762D3D]/60 bg-[#FAFAFA] dark:bg-[#171717] shadow-inner">
         <motion.img
           key={currentToken}
           initial={{ opacity: 0.6, scale: 0.98 }}
@@ -120,28 +120,28 @@ export function QRDisplay({
           transition={{ duration: 0.3 }}
           src={qrDataUrl}
           alt="Class Attendance QR Code"
-          className="w-64 h-64 rounded-xl object-contain shadow-sm bg-white"
+          className="w-64 h-64 rounded-xl object-contain shadow-sm bg-white p-2"
         />
 
         {/* Security badge on QR corner */}
-        <div className="absolute bottom-4 right-4 bg-maroon-800 text-white p-1 rounded-md shadow-md text-[10px] font-bold">
+        <div className="absolute bottom-5 right-5 bg-[#762D3D] text-[#F5F5F5] px-1.5 py-0.5 rounded-md shadow-md text-[10px] font-bold tracking-wider">
           TCCI
         </div>
       </div>
 
       {/* Rotation Countdown Bar */}
       <div className="w-full mt-4 space-y-1.5">
-        <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+        <div className="flex items-center justify-between text-xs text-[#626262] dark:text-[#A6A6A6]">
           <span className="flex items-center gap-1 font-medium">
-            <Clock className="w-3.5 h-3.5 text-maroon-700 dark:text-maroon-400" /> Rotating in:
+            <Clock className="w-3.5 h-3.5 text-[#762D3D] dark:text-[#E6B5C2]" /> Rotating in:
           </span>
-          <span className="font-bold font-mono text-slate-900 dark:text-white">
+          <span className="font-bold font-mono text-[#252525] dark:text-[#F5F5F5]">
             {countdown}s
           </span>
         </div>
-        <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+        <div className="w-full h-1.5 bg-[#EAEAEA] dark:bg-[#252525] rounded-full overflow-hidden">
           <motion.div
-            className="h-full bg-maroon-700 dark:bg-maroon-600"
+            className="h-full bg-[#762D3D]"
             style={{ width: `${(countdown / rotationIntervalSeconds) * 100}%` }}
             transition={{ ease: "linear" }}
           />

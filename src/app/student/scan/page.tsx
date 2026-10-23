@@ -1,27 +1,37 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { QRScanner } from "@/components/qr/qr-scanner";
-import { ShieldCheck, Info } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 
 export default function StudentScanPage() {
   return (
     <div className="max-w-xl mx-auto space-y-6">
       <div className="text-center">
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+        <div className="inline-flex items-center justify-center p-2 rounded-2xl bg-[#171717] border border-[#454545] shadow-md mb-3">
+          <Image
+            src="/images/tcc-logo.png"
+            alt="Torres Capitol College Crest"
+            width={48}
+            height={48}
+            className="object-contain"
+          />
+        </div>
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#252525] dark:text-[#F5F5F5]">
           Class Attendance Scanner
         </h1>
-        <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+        <p className="text-xs text-[#626262] dark:text-[#A6A6A6] mt-1 max-w-sm mx-auto">
           Scan the dynamic rotating QR code projected in your classroom to confirm your attendance.
         </p>
       </div>
 
       <QRScanner />
 
-      {/* Security Disclaimer Note (Section 4 & 11) */}
-      <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 space-y-1.5">
-        <div className="flex items-center gap-1.5 font-semibold text-slate-700 dark:text-slate-300">
-          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+      {/* Security Disclaimer Note */}
+      <div className="p-4 rounded-2xl bg-[#FAFAFA] dark:bg-[#202020] border border-[#E0E0E0] dark:border-[#383838] text-[11px] text-[#626262] dark:text-[#A6A6A6] space-y-1.5 shadow-sm">
+        <div className="flex items-center gap-1.5 font-semibold text-[#252525] dark:text-[#F5F5F5]">
+          <ShieldCheck className="w-3.5 h-3.5 text-[#2F855A]" />
           <span>Attendance Policy & System Verification Notice</span>
         </div>
         <p className="leading-relaxed">
