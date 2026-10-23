@@ -1,0 +1,251 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id              String            @id @default(uuid())
+  name            String
+  email           String            @unique
+  passwordHash    String
+  role            String            // ADMIN, FACULTY, STUDENT
+  status          String            @default("ACTIVE") // ACTIVE, INACTIVE, SUSPENDED
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  studentProfile  StudentProfile?
+  facultyProfile  FacultyProfile?
+  notifications   Notification[]
+  auditLogs       AuditLog[]        @relation("UserAuditLogs")
+  modifiedRecords AttendanceRecord[] @relation("ModifierUser")
+}
+
+model StudentProfile {
+  id               String            @id @default(uuid())
+  userId           String            @unique
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  studentIdNumber  String            @unique // e.g. "TCCI-2023-0142"
+  program          String            @default("BSIT")
+  yearLevel        Int               @default(1)
+  sectionId        String?
+  section          Section?          @relation(fields: [sectionId], references: [id], onDelete: SetNull)
+  enrollmentStatus String            @default("REGULAR") // REGULAR, IRREGULAR, PROBATIONARY
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  enrollments      ClassEnrollment[]
+  attendanceRecords AttendanceRecord[]
+
+  @@index([studentIdNumber])
+  @@index([sectionId])
+}
+
+model FacultyProfile {
+  id              String            @id @default(uuid())
+  userId          String            @unique
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  facultyIdNumber String            @unique // e.g. "FAC-BSIT-008"
+  department      String            @default("BSIT Department")
+  accountStatus   String            @default("ACTIVE") // ACTIVE, ON_LEAVE
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  schedules       ClassSchedule[]
+  createdSessions AttendanceSession[]
+
+  @@index([facultyIdNumber])
+}
+
+model AcademicTerm {
+  id           String            @id @default(uuid())
+  academicYear String            // e.g. "2024-2025"
+  semester     String            // "1st Semester", "2nd Semester", "Summer"
+  startDate    DateTime
+  endDate      DateTime
+  isActive     Boolean           @default(false)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  sections     Section[]
+  schedules    ClassSchedule[]
+  enrollments  ClassEnrollment[]
+
+  @@unique([academicYear, semester])
+}
+
+model Section {
+  id          String            @id @default(uuid())
+  name        String            // e.g. "BSIT 1-A", "BSIT 3-A"
+  program     String            @default("BSIT")
+  yearLevel   Int
+  termId      String?
+  term        AcademicTerm?     @relation(fields: [termId], references: [id], onDelete: SetNull)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  students    StudentProfile[]
+  schedules   ClassSchedule[]
+  enrollments ClassEnrollment[]
+  sessions    AttendanceSession[]
+
+  @@unique([name, yearLevel])
+}
+
+model Subject {
+  id          String            @id @default(uuid())
+  code        String            @unique // e.g. "IT301", "IT202"
+  name        String            // e.g. "Web Systems and Technologies"
+  description String?
+  units       Int               @default(3)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  schedules   ClassSchedule[]
+  enrollments ClassEnrollment[]
+  sessions    AttendanceSession[]
+}
+
+model ClassSchedule {
+  id          String            @id @default(uuid())
+  subjectId   String
+  subject     Subject           @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  sectionId   String
+  section     Section           @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  facultyId   String
+  faculty     FacultyProfile    @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  termId      String
+  term        AcademicTerm      @relation(fields: [termId], references: [id], onDelete: Cascade)
+  dayOfWeek   String            // Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday
+  startTime   String            // HH:mm (e.g. "08:30")
+  endTime     String            // HH:mm (e.g. "11:30")
+  room        String            // e.g. "ComLab 1", "Room 402"
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  sessions    AttendanceSession[]
+
+  @@index([facultyId])
+  @@index([sectionId])
+  @@index([subjectId])
+}
+
+model ClassEnrollment {
+  id          String            @id @default(uuid())
+  studentId   String
+  student     StudentProfile    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  subjectId   String
+  subject     Subject           @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  sectionId   String
+  section     Section           @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  termId      String
+  term        AcademicTerm      @relation(fields: [termId], references: [id], onDelete: Cascade)
+  status      String            @default("ENROLLED") // ENROLLED, DROPPED
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@unique([studentId, subjectId, termId])
+  @@index([studentId])
+  @@index([subjectId])
+}
+
+model AttendanceSession {
+  id                    String            @id @default(uuid())
+  scheduleId            String?
+  schedule              ClassSchedule?    @relation(fields: [scheduleId], references: [id], onDelete: SetNull)
+  facultyId             String
+  faculty               FacultyProfile    @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  subjectId             String
+  subject               Subject           @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  sectionId             String
+  section               Section           @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  sessionDate           DateTime          @default(now())
+  startTime             DateTime          @default(now())
+  endTime               DateTime
+  qrToken               String            // current active dynamic validation token
+  qrTokenHash           String?
+  qrRotatedAt           DateTime          @default(now())
+  status                String            @default("ACTIVE") // ACTIVE, CLOSED, EXPIRED, CANCELLED
+  presentCutoffMinutes  Int               @default(15) // On-time window from start
+  lateCutoffMinutes     Int               @default(45) // After this, marked absent unless excused
+  notes                 String?
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+
+  records               AttendanceRecord[]
+
+  @@index([facultyId])
+  @@index([subjectId])
+  @@index([sectionId])
+  @@index([status])
+}
+
+model AttendanceRecord {
+  id                  String            @id @default(uuid())
+  sessionId           String
+  session             AttendanceSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  studentId           String
+  student             StudentProfile    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  status              String            // PRESENT, LATE, ABSENT, EXCUSED
+  checkInTime         DateTime?
+  submissionMethod    String            @default("QR_SCAN") // QR_SCAN, FACULTY_MANUAL, EXCUSED_ENTRY, AUTO_ABSENT
+  verifiedDeviceIp    String?
+  lastModifiedByUserId String?
+  lastModifiedByUser  User?             @relation("ModifierUser", fields: [lastModifiedByUserId], references: [id], onDelete: SetNull)
+  correctionReason    String?
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+
+  @@unique([sessionId, studentId]) // Strictly prevents duplicate records!
+  @@index([sessionId])
+  @@index([studentId])
+  @@index([status])
+}
+
+model SystemSetting {
+  id                               String   @id @default("tcci-settings")
+  schoolName                       String   @default("Torres Capitol College Inc.")
+  departmentName                   String   @default("Bachelor of Science in Information Technology")
+  defaultGracePeriodMinutes        Int      @default(15)
+  defaultLateCutoffMinutes         Int      @default(45)
+  minimumAttendanceThreshold       Float    @default(80.0) // 80% attendance requirement
+  timeZone                         String   @default("Asia/Manila")
+  qrRotationIntervalSeconds        Int      @default(20)   // QR refreshes every 20s
+  allowManualExcuseApproval        Boolean  @default(true)
+  updatedAt                        DateTime @updatedAt
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  message     String
+  type        String   @default("SYSTEM") // ATTENDANCE_SUCCESS, ATTENDANCE_WARNING, SCHEDULE, SYSTEM
+  isRead      Boolean  @default(false)
+  link        String?
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  actorUserId String?
+  actorUser   User?    @relation("UserAuditLogs", fields: [actorUserId], references: [id], onDelete: SetNull)
+  actorName   String
+  actorRole   String
+  action      String   // e.g. "ATTENDANCE_CORRECTED", "USER_CREATED", "SESSION_STARTED"
+  entityType  String   // "AttendanceRecord", "User", "AttendanceSession", etc.
+  entityId    String?
+  details     String?  // JSON or descriptive text
+  ipAddress   String?
+  createdAt   DateTime @default(now())
+
+  @@index([actorUserId])
+  @@index([action])
+  @@index([createdAt])
+}
