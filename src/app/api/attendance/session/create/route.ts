@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { generateRandomToken, formatQRContent, generateQRCodeDataUrl } from "@/lib/qr";
 import { createAuditLog } from "@/lib/audit";
+import { syncSectionEnrollments } from "@/lib/enrollment-sync";
 import { z } from "zod";
 
 const createSessionSchema = z.object({
@@ -55,6 +56,9 @@ export async function POST(req: NextRequest) {
     if (!facultyProfileId) {
       return NextResponse.json({ error: "No authorized faculty member profile found to associate with session." }, { status: 400 });
     }
+
+    // Ensure all students belonging to this section are enrolled in this subject before session starts
+    await syncSectionEnrollments(sectionId);
 
     const now = new Date();
     const endTime = new Date(now.getTime() + durationMinutes * 60 * 1000);

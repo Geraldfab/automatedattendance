@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getCurrentUser, hashPassword } from "@/lib/auth";
 import { createAuditLog } from "@/lib/audit";
+import { syncSectionEnrollments } from "@/lib/enrollment-sync";
 import { z } from "zod";
 
 export const dynamic = "force-dynamic";
@@ -103,6 +104,11 @@ export async function POST(req: NextRequest) {
         studentProfile: { include: { section: true } },
       },
     });
+
+    // Auto-enroll new student into subjects scheduled for their assigned section
+    if (sectionId) {
+      await syncSectionEnrollments(sectionId);
+    }
 
     await createAuditLog({
       actorUserId: user.id,

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { calculateAttendanceStats } from "@/lib/attendance-engine";
+import { syncSectionEnrollments } from "@/lib/enrollment-sync";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -11,6 +12,15 @@ export async function GET() {
     const user = await getCurrentUser();
     if (!user || user.role !== "STUDENT" || !user.studentProfileId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    }
+
+    // Check student section and ensure enrollments are up to date with class schedules
+    const currentProfile = await prisma.studentProfile.findUnique({
+      where: { id: user.studentProfileId },
+      select: { sectionId: true },
+    });
+    if (currentProfile?.sectionId) {
+      await syncSectionEnrollments(currentProfile.sectionId);
     }
 
     const studentProfile = await prisma.studentProfile.findUnique({

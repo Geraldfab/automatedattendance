@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { hashPassword, createSessionToken, setAuthCookie } from "@/lib/auth";
 import { createAuditLog } from "@/lib/audit";
+import { syncSectionEnrollments } from "@/lib/enrollment-sync";
 import { z } from "zod";
 
 export const dynamic = "force-dynamic";
@@ -82,29 +83,7 @@ export async function POST(req: NextRequest) {
 
     // Auto-enroll in subjects for their section if section is selected
     if (sectionId) {
-      const activeTerm = await prisma.academicTerm.findFirst({
-        where: { isActive: true },
-      });
-
-      // Find all scheduled subjects for this section
-      const sectionSchedules = await prisma.classSchedule.findMany({
-        where: { sectionId },
-        select: { subjectId: true },
-      });
-
-      const uniqueSubjectIds = Array.from(new Set(sectionSchedules.map((s) => s.subjectId)));
-
-      if (uniqueSubjectIds.length > 0 && activeTerm) {
-        await prisma.classEnrollment.createMany({
-          data: uniqueSubjectIds.map((subId) => ({
-            studentId: studentProfile.id,
-            subjectId: subId,
-            sectionId,
-            termId: activeTerm.id,
-            status: "ENROLLED",
-          })),
-        });
-      }
+      await syncSectionEnrollments(sectionId);
     }
 
     // Welcome Notification

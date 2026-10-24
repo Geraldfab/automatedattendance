@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { QrCode, PlayCircle, Clock, ShieldCheck, AlertCircle } from "lucide-react";
+import { QrCode, PlayCircle, Clock, ShieldCheck, AlertCircle, Calendar, BookOpen } from "lucide-react";
 
 export default function CreateSessionPage() {
   const router = useRouter();
@@ -12,6 +12,7 @@ export default function CreateSessionPage() {
   const [sections, setSections] = useState<any[]>([]);
   const [schedules, setSchedules] = useState<any[]>([]);
 
+  const [selectedScheduleId, setSelectedScheduleId] = useState("");
   const [selectedSubjectId, setSelectedSubjectId] = useState(searchParams.get("subjectId") || "");
   const [selectedSectionId, setSelectedSectionId] = useState(searchParams.get("sectionId") || "");
   const [durationMinutes, setDurationMinutes] = useState(90);
@@ -34,26 +35,65 @@ export default function CreateSessionPage() {
         fetch("/api/faculty/stats", { cache: "no-store" }),
       ]);
 
+      const subIdFromUrl = searchParams.get("subjectId");
+      const secIdFromUrl = searchParams.get("sectionId");
+
+      let loadedSchedules: any[] = [];
+      if (resStats.ok) {
+        const d = await resStats.json();
+        loadedSchedules = d.schedules || [];
+        setSchedules(loadedSchedules);
+      }
+
       if (resSub.ok) {
         const d = await resSub.json();
         setSubjects(d.subjects || []);
-        if (!selectedSubjectId && d.subjects?.[0]) {
-          setSelectedSubjectId(d.subjects[0].id);
-        }
       }
+
       if (resSec.ok) {
         const d = await resSec.json();
         setSections(d.sections || []);
-        if (!selectedSectionId && d.sections?.[0]) {
-          setSelectedSectionId(d.sections[0].id);
-        }
       }
-      if (resStats.ok) {
-        const d = await resStats.json();
-        setSchedules(d.schedules || []);
+
+      // If URL had params, match to schedule
+      if (subIdFromUrl && secIdFromUrl) {
+        setSelectedSubjectId(subIdFromUrl);
+        setSelectedSectionId(secIdFromUrl);
+        const match = loadedSchedules.find(
+          (s) => s.subjectId === subIdFromUrl && s.sectionId === secIdFromUrl
+        );
+        if (match) setSelectedScheduleId(match.id);
+      } else if (loadedSchedules.length > 0) {
+        // Pre-select first scheduled class
+        const first = loadedSchedules[0];
+        setSelectedScheduleId(first.id);
+        setSelectedSubjectId(first.subjectId);
+        setSelectedSectionId(first.sectionId);
       }
     } catch (e) {
       console.error(e);
+    }
+  };
+
+  const handleSelectSchedule = (schedId: string) => {
+    setSelectedScheduleId(schedId);
+    if (!schedId) return;
+    const sched = schedules.find((s) => s.id === schedId);
+    if (sched) {
+      setSelectedSubjectId(sched.subjectId);
+      setSelectedSectionId(sched.sectionId);
+    }
+  };
+
+  const handleSubjectChange = (subId: string) => {
+    setSelectedSubjectId(subId);
+    // Find matching schedule for this subject if available
+    const match = schedules.find((s) => s.subjectId === subId);
+    if (match) {
+      setSelectedSectionId(match.sectionId);
+      setSelectedScheduleId(match.id);
+    } else {
+      setSelectedScheduleId("");
     }
   };
 
@@ -67,6 +107,7 @@ export default function CreateSessionPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          scheduleId: selectedScheduleId || null,
           subjectId: selectedSubjectId,
           sectionId: selectedSectionId,
           durationMinutes: Number(durationMinutes),
@@ -91,11 +132,11 @@ export default function CreateSessionPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+        <h1 className="text-2xl font-bold tracking-tight text-[#252525] dark:text-[#F5F5F5]">
           Launch Live Attendance Session
         </h1>
-        <p className="text-xs text-slate-500 mt-1">
-          Generate an encrypted dynamic QR code for your scheduled class
+        <p className="text-xs text-[#626262] dark:text-[#A6A6A6] mt-1">
+          Generate an encrypted dynamic QR code for your scheduled class session
         </p>
       </div>
 
@@ -110,6 +151,45 @@ export default function CreateSessionPage() {
           </div>
         )}
 
+        {/* Quick Select from Assigned Teaching Schedule */}
+        {schedules.length > 0 && (
+          <div className="p-4 bg-[#F0F0F0] dark:bg-[#252525] rounded-xl border border-[#E0E0E0] dark:border-[#383838] space-y-2.5">
+            <label className="block font-semibold uppercase text-[#626262] dark:text-[#A6A6A6] text-[11px] flex items-center gap-1.5">
+              <Calendar className="w-3.5 h-3.5 text-[#762D3D] dark:text-[#E6B5C2]" />
+              <span>Select from Assigned Teaching Schedule</span>
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {schedules.map((s) => {
+                const isSelected =
+                  selectedSubjectId === s.subjectId && selectedSectionId === s.sectionId;
+                return (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => handleSelectSchedule(s.id)}
+                    className={`p-3 rounded-xl border text-left transition-all flex flex-col justify-between ${
+                      isSelected
+                        ? "bg-[#352329] border-[#762D3D] text-[#F5F5F5] ring-2 ring-[#762D3D]"
+                        : "bg-[#FAFAFA] dark:bg-[#202020] border-[#E0E0E0] dark:border-[#454545] text-[#252525] dark:text-[#F5F5F5] hover:bg-[#EAEAEA] dark:hover:bg-[#2e2e2e]"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono font-bold text-xs">{s.subject.code}</span>
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-[#252525] text-[#F5F5F5] border border-[#454545]">
+                        {s.section.name}
+                      </span>
+                    </div>
+                    <p className="text-[11px] truncate mt-1 opacity-90">{s.subject.name}</p>
+                    <div className="mt-2 text-[10px] opacity-75 font-mono">
+                      {s.dayOfWeek} &bull; {s.startTime}–{s.endTime}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Subject & Section Selection */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
@@ -118,10 +198,11 @@ export default function CreateSessionPage() {
             </label>
             <select
               value={selectedSubjectId}
-              onChange={(e) => setSelectedSubjectId(e.target.value)}
+              onChange={(e) => handleSubjectChange(e.target.value)}
               required
               className="w-full px-3 py-2.5 rounded-xl border border-[#E0E0E0] dark:border-[#454545] bg-[#FFFFFF] dark:bg-[#252525] text-[#252525] dark:text-[#F5F5F5] font-medium focus:outline-none focus:ring-2 focus:ring-[#762D3D]"
             >
+              <option value="" disabled>Select Subject</option>
               {subjects.map((sub) => (
                 <option key={sub.id} value={sub.id}>
                   {sub.code} — {sub.name}
@@ -136,10 +217,14 @@ export default function CreateSessionPage() {
             </label>
             <select
               value={selectedSectionId}
-              onChange={(e) => setSelectedSectionId(e.target.value)}
+              onChange={(e) => {
+                setSelectedSectionId(e.target.value);
+                setSelectedScheduleId("");
+              }}
               required
               className="w-full px-3 py-2.5 rounded-xl border border-[#E0E0E0] dark:border-[#454545] bg-[#FFFFFF] dark:bg-[#252525] text-[#252525] dark:text-[#F5F5F5] font-medium focus:outline-none focus:ring-2 focus:ring-[#762D3D]"
             >
+              <option value="" disabled>Select Section</option>
               {sections.map((sec) => (
                 <option key={sec.id} value={sec.id}>
                   {sec.name} (Year {sec.yearLevel})
