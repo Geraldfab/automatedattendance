@@ -86,7 +86,7 @@ export function TopNav({ user }: TopNavProps) {
         </button>
 
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#F0F0F0] text-[#252525] border border-[#E0E0E0] dark:bg-[#252525] dark:text-[#F5F5F5] dark:border-[#454545]">
-          A.Y. 2024–2025
+          A.Y. 2026–2027
         </span>
         <span className="hidden sm:inline-block text-xs text-[#858585]">|</span>
         <span className="hidden sm:inline-block text-xs font-medium text-[#626262] dark:text-[#A6A6A6]">
