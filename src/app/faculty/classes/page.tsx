@@ -14,7 +14,7 @@ export default function FacultyClassesPage() {
 
   const fetchClasses = async () => {
     try {
-      const res = await fetch("/api/faculty/stats");
+      const res = await fetch("/api/faculty/stats", { cache: "no-store" });
       if (res.ok) {
         const d = await res.json();
         setClassStats(d.classStats || []);

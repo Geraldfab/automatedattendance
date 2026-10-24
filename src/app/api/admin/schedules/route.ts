@@ -4,6 +4,9 @@ import { getCurrentUser } from "@/lib/auth";
 import { createAuditLog } from "@/lib/audit";
 import { z } from "zod";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const scheduleSchema = z.object({
   subjectId: z.string().min(1),
   sectionId: z.string().min(1),
@@ -72,5 +75,50 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, schedule });
   } catch (e) {
     return NextResponse.json({ error: "Failed to create schedule" }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const user = await getCurrentUser();
+    if (!user || user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const scheduleId = searchParams.get("id");
+    if (!scheduleId) {
+      return NextResponse.json({ error: "Schedule ID is required" }, { status: 400 });
+    }
+
+    const schedule = await prisma.classSchedule.findUnique({
+      where: { id: scheduleId },
+      include: { subject: true, section: true },
+    });
+
+    if (!schedule) {
+      return NextResponse.json({ error: "Schedule not found" }, { status: 404 });
+    }
+
+    await prisma.classSchedule.delete({ where: { id: scheduleId } });
+
+    await createAuditLog({
+      actorUserId: user.id,
+      actorName: user.name,
+      actorRole: user.role,
+      action: "SCHEDULE_DELETED",
+      entityType: "ClassSchedule",
+      entityId: scheduleId,
+      details: {
+        subject: schedule.subject.code,
+        section: schedule.section.name,
+        dayOfWeek: schedule.dayOfWeek,
+      },
+    });
+
+    return NextResponse.json({ success: true, message: "Class schedule removed successfully." });
+  } catch (error: any) {
+    console.error("Delete schedule error:", error);
+    return NextResponse.json({ error: "Failed to delete schedule" }, { status: 500 });
   }
 }

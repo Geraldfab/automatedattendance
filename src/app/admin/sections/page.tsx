@@ -1,11 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Layers, Plus, X } from "lucide-react";
+import { Layers, Plus, X, Trash2 } from "lucide-react";
 
 export default function AdminSectionsPage() {
   const [sections, setSections] = useState<any[]>([]);
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<any>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const [name, setName] = useState("");
   const [yearLevel, setYearLevel] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -16,10 +19,28 @@ export default function AdminSectionsPage() {
   }, []);
 
   const fetchSections = async () => {
-    const res = await fetch("/api/admin/sections");
+    const res = await fetch("/api/admin/sections", { cache: "no-store" });
     if (res.ok) {
       const d = await res.json();
       setSections(d.sections || []);
+    }
+  };
+
+  const handleDeleteSection = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/admin/sections?id=${deleteTarget.id}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        setDeleteTarget(null);
+        fetchSections();
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -82,9 +103,18 @@ export default function AdminSectionsPage() {
             <h3 className="font-bold text-lg text-slate-900 dark:text-white">
               {sec.name}
             </h3>
-            <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-between text-xs text-slate-500">
+            <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500">
               <span>{sec._count?.students || 0} Students</span>
-              <span>{sec._count?.schedules || 0} Schedules</span>
+              <div className="flex items-center gap-2">
+                <span>{sec._count?.schedules || 0} Classes</span>
+                <button
+                  onClick={() => setDeleteTarget(sec)}
+                  className="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                  title="Remove Section"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
           </div>
         ))}
@@ -134,6 +164,45 @@ export default function AdminSectionsPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Section Confirmation Modal */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="w-full max-w-sm bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6 space-y-4">
+            <div className="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-950/50 text-rose-600 flex items-center justify-center mx-auto">
+              <Trash2 className="w-6 h-6" />
+            </div>
+
+            <div className="text-center space-y-1">
+              <h3 className="font-bold text-sm text-slate-900 dark:text-white">
+                Remove Section?
+              </h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Are you sure you want to remove <strong className="text-slate-800 dark:text-slate-200">{deleteTarget.name}</strong> (Year {deleteTarget.yearLevel})? Enrolled students will be marked as unassigned.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setDeleteTarget(null)}
+                disabled={isDeleting}
+                className="flex-1 py-2 text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteSection}
+                disabled={isDeleting}
+                className="flex-1 py-2 text-xs font-semibold rounded-xl bg-rose-600 hover:bg-rose-700 text-white disabled:opacity-50"
+              >
+                {isDeleting ? "Removing..." : "Remove Section"}
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Calendar, Plus, X, Clock, MapPin } from "lucide-react";
+import { Calendar, Plus, X, Clock, MapPin, Trash2 } from "lucide-react";
 
 export default function AdminSchedulesPage() {
   const [schedules, setSchedules] = useState<any[]>([]);
@@ -11,6 +11,9 @@ export default function AdminSchedulesPage() {
   const [terms, setTerms] = useState<any[]>([]);
 
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<any>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const [subjectId, setSubjectId] = useState("");
   const [sectionId, setSectionId] = useState("");
   const [facultyId, setFacultyId] = useState("");
@@ -29,11 +32,11 @@ export default function AdminSchedulesPage() {
   const fetchData = async () => {
     try {
       const [resSched, resSub, resSec, resFac, resTerms] = await Promise.all([
-        fetch("/api/admin/schedules"),
-        fetch("/api/admin/subjects"),
-        fetch("/api/admin/sections"),
-        fetch("/api/admin/faculty"),
-        fetch("/api/admin/terms"),
+        fetch("/api/admin/schedules", { cache: "no-store" }),
+        fetch("/api/admin/subjects", { cache: "no-store" }),
+        fetch("/api/admin/sections", { cache: "no-store" }),
+        fetch("/api/admin/faculty", { cache: "no-store" }),
+        fetch("/api/admin/terms", { cache: "no-store" }),
       ]);
       if (resSched.ok) {
         const d = await resSched.json();
@@ -60,6 +63,24 @@ export default function AdminSchedulesPage() {
       }
     } catch (e) {
       console.error(e);
+    }
+  };
+
+  const handleDeleteSchedule = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/admin/schedules?id=${deleteTarget.id}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        setDeleteTarget(null);
+        fetchData();
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -133,6 +154,7 @@ export default function AdminSchedulesPage() {
                 <th className="py-3.5 px-4">Day</th>
                 <th className="py-3.5 px-4">Time Window</th>
                 <th className="py-3.5 px-4">Classroom</th>
+                <th className="py-3.5 px-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -161,6 +183,15 @@ export default function AdminSchedulesPage() {
                       <MapPin className="w-3 h-3 text-slate-400" />
                       <span>{s.room}</span>
                     </span>
+                  </td>
+                  <td className="py-3.5 px-4 text-right">
+                    <button
+                      onClick={() => setDeleteTarget(s)}
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                      title="Remove Schedule"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -283,6 +314,45 @@ export default function AdminSchedulesPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Schedule Confirmation Modal */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="w-full max-w-sm bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6 space-y-4">
+            <div className="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-950/50 text-rose-600 flex items-center justify-center mx-auto">
+              <Trash2 className="w-6 h-6" />
+            </div>
+
+            <div className="text-center space-y-1">
+              <h3 className="font-bold text-sm text-slate-900 dark:text-white">
+                Remove Class Schedule?
+              </h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Are you sure you want to remove the schedule for <strong className="text-slate-800 dark:text-slate-200">{deleteTarget.subject.code}</strong> ({deleteTarget.section.name}) on {deleteTarget.dayOfWeek} ({deleteTarget.startTime} - {deleteTarget.endTime})?
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setDeleteTarget(null)}
+                disabled={isDeleting}
+                className="flex-1 py-2 text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteSchedule}
+                disabled={isDeleting}
+                className="flex-1 py-2 text-xs font-semibold rounded-xl bg-rose-600 hover:bg-rose-700 text-white disabled:opacity-50"
+              >
+                {isDeleting ? "Removing..." : "Remove Schedule"}
+              </button>
+            </div>
           </div>
         </div>
       )}

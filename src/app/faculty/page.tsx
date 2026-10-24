@@ -25,7 +25,7 @@ export default function FacultyDashboardPage() {
 
   const fetchStats = async () => {
     try {
-      const res = await fetch("/api/faculty/dashboard");
+      const res = await fetch("/api/faculty/stats", { cache: "no-store" });
       if (res.ok) {
         const d = await res.json();
         setData(d);

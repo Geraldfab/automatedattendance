@@ -45,7 +45,7 @@ export default function LiveSessionMonitorPage({
 
   const fetchSession = async () => {
     try {
-      const res = await fetch(`/api/attendance/session/${sessionId}`);
+      const res = await fetch(`/api/attendance/session/${sessionId}`, { cache: "no-store" });
       if (res.ok) {
         const d = await res.json();
         setSessionData(d);

@@ -1,11 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { BookOpen, Plus, X } from "lucide-react";
+import { BookOpen, Plus, X, Trash2 } from "lucide-react";
 
 export default function AdminSubjectsPage() {
   const [subjects, setSubjects] = useState<any[]>([]);
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<any>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const [code, setCode] = useState("");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -18,10 +21,28 @@ export default function AdminSubjectsPage() {
   }, []);
 
   const fetchSubjects = async () => {
-    const res = await fetch("/api/admin/subjects");
+    const res = await fetch("/api/admin/subjects", { cache: "no-store" });
     if (res.ok) {
       const d = await res.json();
       setSubjects(d.subjects || []);
+    }
+  };
+
+  const handleDeleteSubject = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/admin/subjects?id=${deleteTarget.id}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        setDeleteTarget(null);
+        fetchSubjects();
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -94,7 +115,13 @@ export default function AdminSubjectsPage() {
 
             <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
               <span>{sub._count?.schedules || 0} Scheduled Classes</span>
-              <span>{sub._count?.sessions || 0} Sessions</span>
+              <button
+                onClick={() => setDeleteTarget(sub)}
+                className="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                title="Remove Subject"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
             </div>
           </div>
         ))}
@@ -164,6 +191,45 @@ export default function AdminSubjectsPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Subject Confirmation Modal */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="w-full max-w-sm bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6 space-y-4">
+            <div className="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-950/50 text-rose-600 flex items-center justify-center mx-auto">
+              <Trash2 className="w-6 h-6" />
+            </div>
+
+            <div className="text-center space-y-1">
+              <h3 className="font-bold text-sm text-slate-900 dark:text-white">
+                Remove Subject from Curriculum?
+              </h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Are you sure you want to remove <strong className="text-slate-800 dark:text-slate-200">{deleteTarget.code}</strong> — {deleteTarget.name}? All class schedules and enrollments for this subject will be removed.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setDeleteTarget(null)}
+                disabled={isDeleting}
+                className="flex-1 py-2 text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteSubject}
+                disabled={isDeleting}
+                className="flex-1 py-2 text-xs font-semibold rounded-xl bg-rose-600 hover:bg-rose-700 text-white disabled:opacity-50"
+              >
+                {isDeleting ? "Removing..." : "Remove Subject"}
+              </button>
+            </div>
           </div>
         </div>
       )}

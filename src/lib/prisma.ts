@@ -9,6 +9,16 @@ const globalForPrisma = globalThis as unknown as {
 function resolveDatabaseUrl(): string {
   const envUrl = process.env.DATABASE_URL;
 
+  // If a remote cloud database (PostgreSQL, MySQL, etc.) is configured, always use it directly
+  if (
+    envUrl &&
+    (envUrl.startsWith('postgres://') ||
+      envUrl.startsWith('postgresql://') ||
+      envUrl.startsWith('mysql://'))
+  ) {
+    return envUrl;
+  }
+
   // Detect serverless environment (Vercel, AWS Lambda, Netlify)
   const isServerless =
     Boolean(process.env.VERCEL) ||

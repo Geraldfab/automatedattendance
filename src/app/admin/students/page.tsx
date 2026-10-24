@@ -11,6 +11,7 @@ import {
   CheckCircle,
   X,
   Upload,
+  Trash2,
 } from "lucide-react";
 import { downloadCSV } from "@/lib/utils";
 
@@ -24,6 +25,8 @@ export default function AdminStudentsPage() {
   // Modals
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<any>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Add form state
   const [name, setName] = useState("");
@@ -50,8 +53,8 @@ export default function AdminStudentsPage() {
       if (selectedSection) q.set("sectionId", selectedSection);
 
       const [resStudents, resSections] = await Promise.all([
-        fetch(`/api/admin/students?${q.toString()}`),
-        fetch("/api/admin/sections"),
+        fetch(`/api/admin/students?${q.toString()}`, { cache: "no-store" }),
+        fetch("/api/admin/sections", { cache: "no-store" }),
       ]);
 
       if (resStudents.ok) {
@@ -66,6 +69,24 @@ export default function AdminStudentsPage() {
       console.error(e);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDeleteStudent = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/admin/students?id=${deleteTarget.id}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        setDeleteTarget(null);
+        fetchData();
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -220,13 +241,14 @@ export default function AdminStudentsPage() {
                 <th className="py-3.5 px-4">Section</th>
                 <th className="py-3.5 px-4">Year Level</th>
                 <th className="py-3.5 px-4">Status</th>
-                <th className="py-3.5 px-4 text-right">Records</th>
+                <th className="py-3.5 px-4">Records</th>
+                <th className="py-3.5 px-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {students.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-400">
+                  <td colSpan={8} className="py-12 text-center text-slate-400">
                     No student records found matching criteria.
                   </td>
                 </tr>
@@ -256,8 +278,17 @@ export default function AdminStudentsPage() {
                         Active
                       </span>
                     </td>
-                    <td className="py-3.5 px-4 text-right font-medium text-slate-600 dark:text-slate-400">
+                    <td className="py-3.5 px-4 font-medium text-slate-600 dark:text-slate-400">
                       {st._count?.attendanceRecords || 0}
+                    </td>
+                    <td className="py-3.5 px-4 text-right">
+                      <button
+                        onClick={() => setDeleteTarget(st)}
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                        title="Remove Student Record"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </td>
                   </tr>
                 ))
@@ -468,6 +499,45 @@ export default function AdminStudentsPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="w-full max-w-sm bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6 space-y-4">
+            <div className="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-950/50 text-rose-600 flex items-center justify-center mx-auto">
+              <Trash2 className="w-6 h-6" />
+            </div>
+
+            <div className="text-center space-y-1">
+              <h3 className="font-bold text-sm text-slate-900 dark:text-white">
+                Remove Student Account?
+              </h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Are you sure you want to remove <strong className="text-slate-800 dark:text-slate-200">{deleteTarget.user.name}</strong> ({deleteTarget.studentIdNumber})? All associated enrollment and attendance history will be permanently deleted.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setDeleteTarget(null)}
+                disabled={isDeleting}
+                className="flex-1 py-2 text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteStudent}
+                disabled={isDeleting}
+                className="flex-1 py-2 text-xs font-semibold rounded-xl bg-rose-600 hover:bg-rose-700 text-white disabled:opacity-50"
+              >
+                {isDeleting ? "Removing..." : "Remove Student"}
+              </button>
+            </div>
           </div>
         </div>
       )}

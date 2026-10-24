@@ -15,7 +15,7 @@ export default function AdminAuditLogsPage() {
 
   const fetchLogs = async () => {
     try {
-      const res = await fetch("/api/admin/audit-logs?limit=200");
+      const res = await fetch("/api/admin/audit-logs?limit=200", { cache: "no-store" });
       if (res.ok) {
         const d = await res.json();
         setLogs(d.logs || []);

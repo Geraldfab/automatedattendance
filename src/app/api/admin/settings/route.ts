@@ -14,6 +14,9 @@ const settingsSchema = z.object({
   qrRotationIntervalSeconds: z.number().min(5).max(120),
 });
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET() {
   try {
     let settings = await prisma.systemSetting.findUnique({ where: { id: "tcci-settings" } });

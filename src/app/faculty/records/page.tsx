@@ -32,7 +32,7 @@ export default function FacultyRecordsPage() {
       const q = new URLSearchParams();
       if (selectedStatus && selectedStatus !== "ALL") q.set("status", selectedStatus);
 
-      const res = await fetch(`/api/attendance/records?${q.toString()}`);
+      const res = await fetch(`/api/attendance/records?${q.toString()}`, { cache: "no-store" });
       if (res.ok) {
         const d = await res.json();
         setRecords(d.records || []);

@@ -13,7 +13,7 @@ export default function StudentSchedulePage() {
 
   const fetchSchedule = async () => {
     try {
-      const res = await fetch("/api/student/dashboard");
+      const res = await fetch("/api/student/dashboard", { cache: "no-store" });
       if (res.ok) {
         const d = await res.json();
         setSchedules(d.schedules || []);

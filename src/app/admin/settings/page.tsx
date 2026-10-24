@@ -19,7 +19,7 @@ export default function AdminSettingsPage() {
   }, []);
 
   const fetchSettings = async () => {
-    const res = await fetch("/api/admin/settings");
+    const res = await fetch("/api/admin/settings", { cache: "no-store" });
     if (res.ok) {
       const d = await res.json();
       if (d.settings) {

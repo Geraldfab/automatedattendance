@@ -29,9 +29,9 @@ export default function CreateSessionPage() {
   const fetchPrerequisites = async () => {
     try {
       const [resSub, resSec, resStats] = await Promise.all([
-        fetch("/api/admin/subjects"),
-        fetch("/api/admin/sections"),
-        fetch("/api/faculty/stats"),
+        fetch("/api/admin/subjects", { cache: "no-store" }),
+        fetch("/api/admin/sections", { cache: "no-store" }),
+        fetch("/api/faculty/stats", { cache: "no-store" }),
       ]);
 
       if (resSub.ok) {

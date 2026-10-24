@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -222,7 +223,18 @@ export default function LoginPage() {
             )}
           </button>
 
-          <div className="pt-2 flex items-center justify-center gap-2 text-[11px] text-[#858585]">
+          {/* New Student Registration Link */}
+          <div className="pt-3 text-center text-xs text-[#A6A6A6] border-t border-[#454545]/60">
+            <span>New BSIT Student? </span>
+            <Link
+              href="/signup"
+              className="text-[#F5F5F5] hover:text-white font-semibold underline underline-offset-4"
+            >
+              Register / Create Account
+            </Link>
+          </div>
+
+          <div className="pt-1 flex items-center justify-center gap-2 text-[11px] text-[#858585]">
             <span>Torres Capitol College Inc.</span>
             <span>&bull;</span>
             <span>Academic Year 2024–2025</span>

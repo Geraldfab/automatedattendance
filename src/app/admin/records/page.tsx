@@ -44,8 +44,8 @@ export default function AdminAttendanceRecordsPage() {
   const fetchMetadata = async () => {
     try {
       const [resSub, resSec] = await Promise.all([
-        fetch("/api/admin/subjects"),
-        fetch("/api/admin/sections"),
+        fetch("/api/admin/subjects", { cache: "no-store" }),
+        fetch("/api/admin/sections", { cache: "no-store" }),
       ]);
       if (resSub.ok) {
         const d = await resSub.json();
@@ -66,7 +66,7 @@ export default function AdminAttendanceRecordsPage() {
       if (selectedSection) q.set("sectionId", selectedSection);
       if (selectedStatus && selectedStatus !== "ALL") q.set("status", selectedStatus);
 
-      const res = await fetch(`/api/attendance/records?${q.toString()}`);
+      const res = await fetch(`/api/attendance/records?${q.toString()}`, { cache: "no-store" });
       if (res.ok) {
         const d = await res.json();
         setRecords(d.records || []);

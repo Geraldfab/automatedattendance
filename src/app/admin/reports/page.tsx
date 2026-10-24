@@ -32,10 +32,10 @@ export default function AdminReportsPage() {
   const fetchMetadata = async () => {
     try {
       const [resSec, resSub, resRec, resStud] = await Promise.all([
-        fetch("/api/admin/sections"),
-        fetch("/api/admin/subjects"),
-        fetch("/api/attendance/records?limit=500"),
-        fetch("/api/admin/students"),
+        fetch("/api/admin/sections", { cache: "no-store" }),
+        fetch("/api/admin/subjects", { cache: "no-store" }),
+        fetch("/api/attendance/records?limit=500", { cache: "no-store" }),
+        fetch("/api/admin/students", { cache: "no-store" }),
       ]);
 
       if (resSec.ok) {

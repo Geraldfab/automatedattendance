@@ -32,7 +32,7 @@ export default function StudentDashboardPage() {
 
   const fetchDashboard = async (isBackground = false) => {
     try {
-      const res = await fetch("/api/student/dashboard");
+      const res = await fetch("/api/student/dashboard", { cache: "no-store" });
       if (res.ok) {
         const d = await res.json();
         setData(d);

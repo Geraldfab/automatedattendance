@@ -14,7 +14,7 @@ export default function StudentNotificationsPage() {
 
   const fetchNotifications = async () => {
     try {
-      const res = await fetch("/api/notifications");
+      const res = await fetch("/api/notifications", { cache: "no-store" });
       if (res.ok) {
         const d = await res.json();
         setNotifications(d.notifications || []);

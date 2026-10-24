@@ -14,7 +14,7 @@ export default function StudentSubjectsPage() {
 
   const fetchData = async () => {
     try {
-      const res = await fetch("/api/student/dashboard");
+      const res = await fetch("/api/student/dashboard", { cache: "no-store" });
       if (res.ok) {
         const d = await res.json();
         setSubjects(d.subjectBreakdown || []);
