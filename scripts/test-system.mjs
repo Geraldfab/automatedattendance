@@ -75,46 +75,47 @@ async function runTests() {
   assert(statsAtRisk.attendanceRate < 80 && statsAtRisk.isAtRisk, 'Calculation: Low attendance flags isAtRisk = true (< 80%)');
 
   // Test 5: Database Duplicate Submission Constraint
-  const activeSession = await prisma.attendanceSession.findFirst({
-    where: { status: 'ACTIVE' },
+  const sampleSession = await prisma.attendanceSession.findFirst({
     include: { section: true },
   });
 
   const testStudent = await prisma.studentProfile.findFirst({
-    where: { sectionId: activeSession.sectionId },
+    where: { sectionId: sampleSession?.sectionId || undefined },
   });
 
   // Attempt duplicate record
   let duplicateCaught = false;
-  try {
-    // Delete any existing record for clean test
-    await prisma.attendanceRecord.deleteMany({
-      where: { sessionId: activeSession.id, studentId: testStudent.id },
-    });
+  if (sampleSession && testStudent) {
+    try {
+      // Delete any existing record for clean test
+      await prisma.attendanceRecord.deleteMany({
+        where: { sessionId: sampleSession.id, studentId: testStudent.id },
+      });
 
-    // First insertion succeeds
-    await prisma.attendanceRecord.create({
-      data: {
-        sessionId: activeSession.id,
-        studentId: testStudent.id,
-        status: 'PRESENT',
-        checkInTime: new Date(),
-        submissionMethod: 'QR_SCAN',
-      },
-    });
+      // First insertion succeeds
+      await prisma.attendanceRecord.create({
+        data: {
+          sessionId: sampleSession.id,
+          studentId: testStudent.id,
+          status: 'PRESENT',
+          checkInTime: new Date(),
+          submissionMethod: 'QR_SCAN',
+        },
+      });
 
-    // Second try must throw Unique Constraint error
-    await prisma.attendanceRecord.create({
-      data: {
-        sessionId: activeSession.id,
-        studentId: testStudent.id,
-        status: 'PRESENT',
-        checkInTime: new Date(),
-        submissionMethod: 'QR_SCAN',
-      },
-    });
-  } catch (err) {
-    duplicateCaught = true;
+      // Second try must throw Unique Constraint error
+      await prisma.attendanceRecord.create({
+        data: {
+          sessionId: sampleSession.id,
+          studentId: testStudent.id,
+          status: 'PRESENT',
+          checkInTime: new Date(),
+          submissionMethod: 'QR_SCAN',
+        },
+      });
+    } catch (err) {
+      duplicateCaught = true;
+    }
   }
   assert(duplicateCaught, 'Database Integrity: Unique constraint prevents duplicate attendance records for the same session');
 

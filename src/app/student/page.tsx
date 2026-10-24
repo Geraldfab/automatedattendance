@@ -23,9 +23,14 @@ export default function StudentDashboardPage() {
 
   useEffect(() => {
     fetchDashboard();
+    // Auto-refresh every 6 seconds so active sessions appear and disappear in real time
+    const interval = setInterval(() => {
+      fetchDashboard(true);
+    }, 6000);
+    return () => clearInterval(interval);
   }, []);
 
-  const fetchDashboard = async () => {
+  const fetchDashboard = async (isBackground = false) => {
     try {
       const res = await fetch("/api/student/dashboard");
       if (res.ok) {
@@ -35,7 +40,7 @@ export default function StudentDashboardPage() {
     } catch (e) {
       console.error(e);
     } finally {
-      setIsLoading(false);
+      if (!isBackground) setIsLoading(false);
     }
   };
 
@@ -115,45 +120,58 @@ export default function StudentDashboardPage() {
           {activeSessions.map((session: any) => (
             <div
               key={session.id}
-              className={`p-5 rounded-2xl border shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+              className={`p-5 rounded-2xl border shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all ${
                 session.hasCheckedIn
-                  ? "bg-[#EBF5EE] dark:bg-[#1C3E2B]/40 border-[#2F855A]/40"
-                  : "bg-[#352329] dark:bg-[#352329] border-[#762D3D]"
+                  ? "bg-[#FFFFFF] dark:bg-[#202020] border-l-4 border-l-[#2F855A] border-[#E0E0E0] dark:border-[#383838]"
+                  : "bg-[#FFFFFF] dark:bg-[#202020] border-l-4 border-l-[#762D3D] border-[#E0E0E0] dark:border-[#383838] shadow-md shadow-[#762D3D]/5"
               }`}
             >
-              <div className="flex items-center gap-3">
-                <span
-                  className={`w-3 h-3 rounded-full ${
-                    session.hasCheckedIn ? "bg-[#2F855A]" : "bg-[#762D3D] animate-ping"
-                  }`}
-                />
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono font-bold text-xs text-[#252525] dark:text-[#F5F5F5]">
-                      {session.subject.code}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  {session.hasCheckedIn ? (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#EBF5EE] dark:bg-[#1C3E2B] text-[#2F855A] dark:text-[#72C899] border border-[#2F855A]/30">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#2F855A]" />
+                      Attendance Recorded
                     </span>
-                    <span className="text-[#858585]">&bull;</span>
-                    <span className="font-semibold text-xs text-[#252525] dark:text-[#F5F5F5]">
-                      {session.subject.name}
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#F8EAEF] dark:bg-[#352329] text-[#762D3D] dark:text-[#E6B5C2] border border-[#762D3D]/30">
+                      <span className="w-2 h-2 rounded-full bg-[#762D3D] animate-ping" />
+                      Live Attendance Active
                     </span>
-                  </div>
-                  <p className="text-[11px] text-[#626262] dark:text-[#A6A6A6] mt-0.5">
-                    Faculty: {session.faculty.user.name} &bull; Section {session.section.name}
-                  </p>
+                  )}
+                  <span className="text-[11px] text-[#626262] dark:text-[#A6A6A6]">
+                    Active until {new Date(session.endTime).toLocaleTimeString("en-PH", { hour: "2-digit", minute: "2-digit" })}
+                  </span>
                 </div>
+
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <span className="font-mono font-bold text-xs px-2.5 py-1 rounded-lg bg-[#762D3D] text-[#FFFFFF] shadow-sm">
+                    {session.subject.code}
+                  </span>
+                  <span className="font-bold text-sm sm:text-base text-[#171717] dark:text-[#F5F5F5]">
+                    {session.subject.name}
+                  </span>
+                </div>
+
+                <p className="text-xs text-[#454545] dark:text-[#CCCCCC] font-medium flex items-center gap-2 flex-wrap">
+                  <span>Instructor: <strong className="text-[#171717] dark:text-[#F5F5F5]">{session.faculty.user.name}</strong></span>
+                  <span className="text-[#858585]">&bull;</span>
+                  <span>Section: <strong className="text-[#171717] dark:text-[#F5F5F5]">{session.section.name}</strong></span>
+                </p>
               </div>
 
-              <div>
+              <div className="shrink-0 pt-2 sm:pt-0">
                 {session.hasCheckedIn ? (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#2F855A]/20 text-[#2F855A] dark:text-[#72C899] text-xs font-semibold">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> Checked In
-                  </span>
+                  <div className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#EBF5EE] dark:bg-[#1C3E2B]/50 text-[#2F855A] dark:text-[#72C899] text-xs font-bold border border-[#2F855A]/30">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Checked In ({session.checkInStatus || "PRESENT"})</span>
+                  </div>
                 ) : (
                   <Link
                     href="/student/scan"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#762D3D] hover:bg-[#8A394B] text-[#F5F5F5] font-semibold text-xs rounded-xl shadow-sm transition-colors"
+                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#762D3D] hover:bg-[#8A394B] active:bg-[#622333] text-[#FFFFFF] font-bold text-xs rounded-xl shadow-md shadow-[#762D3D]/25 transition-all hover:scale-[1.02] active:scale-98"
                   >
-                    <QrCode className="w-3.5 h-3.5" />
+                    <QrCode className="w-4 h-4" />
                     <span>Scan Now</span>
                   </Link>
                 )}

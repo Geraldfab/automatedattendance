@@ -65,26 +65,50 @@ export async function GET() {
       };
     });
 
-    // Check for any currently ACTIVE session for this student's section
-    const activeSessions = await prisma.attendanceSession.findMany({
+    // Get enrolled subject IDs for this student
+    const enrolledSubjectIds = studentProfile.enrollments.map((enr) => enr.subjectId);
+
+    const now = new Date();
+
+    // Automatically finalize/close any sessions where endTime has passed
+    await prisma.attendanceSession.updateMany({
       where: {
-        sectionId: studentProfile.sectionId || undefined,
         status: "ACTIVE",
-        endTime: { gt: new Date() },
+        endTime: { lte: now },
       },
-      include: {
-        subject: true,
-        section: true,
-        faculty: { include: { user: true } },
+      data: {
+        status: "CLOSED",
       },
     });
 
+    // Check for any currently ACTIVE session strictly for this student's section and enrolled subjects
+    let activeSessions: any[] = [];
+    if (studentProfile.sectionId && enrolledSubjectIds.length > 0) {
+      activeSessions = await prisma.attendanceSession.findMany({
+        where: {
+          sectionId: studentProfile.sectionId,
+          subjectId: { in: enrolledSubjectIds },
+          status: "ACTIVE",
+          startTime: { lte: now },
+          endTime: { gt: now },
+        },
+        include: {
+          subject: true,
+          section: true,
+          faculty: { include: { user: true } },
+        },
+        orderBy: { startTime: "desc" },
+      });
+    }
+
     // Check if student has already checked into active sessions
     const activeSessionsWithCheckIn = activeSessions.map((s) => {
-      const checkedIn = records.some((r) => r.sessionId === s.id);
+      const record = records.find((r) => r.sessionId === s.id);
       return {
         ...s,
-        hasCheckedIn: checkedIn,
+        hasCheckedIn: Boolean(record),
+        checkInStatus: record?.status || null,
+        checkInTime: record?.checkInTime || null,
       };
     });
 
